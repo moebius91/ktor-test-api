@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: jno_testapi
+      MYSQL_USER: jno_api
+      MYSQL_PASSWORD: jno_api
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+volumes:
+  db_data:
