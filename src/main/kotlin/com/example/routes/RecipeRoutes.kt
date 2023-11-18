@@ -62,5 +62,41 @@ fun Route.recipeRoutes() {
                 call.respond(HttpStatusCode.BadRequest, "Invalid Recipe ID")
             }
         }
+
+        put("{rezeptId}") {
+            val recipeId = call.parameters["rezeptId"]?.toIntOrNull()
+            val updateRecipeDTO = call.receive<Recipe>()
+
+            if (recipeId != null) {
+                val updatedRecipe = recipeRepository.updateRecipe(
+                    recipeId,
+                    updateRecipeDTO.name,
+                    updateRecipeDTO.beschreibung
+                )
+                if (updatedRecipe != null) {
+                    call.respond(HttpStatusCode.OK, updatedRecipe)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Recipe not found")
+                }
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Invalid Recipe ID")
+            }
+        }
+
+        delete("{rezeptId}") {
+            val recipeId = call.parameters["rezeptId"]?.toIntOrNull()
+
+            if (recipeId != null) {
+                val isDeleted = recipeRepository.deleteRecipe(recipeId)
+                if (isDeleted) {
+                    call.respond(HttpStatusCode.NoContent)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Recipe not found")
+                }
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Invalid Recipe ID")
+            }
+        }
+
     }
 }

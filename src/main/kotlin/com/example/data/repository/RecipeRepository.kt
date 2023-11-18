@@ -4,9 +4,8 @@ import com.example.data.extensions.toRecipe
 import com.example.data.model.Recipe
 import com.example.data.model.RecipesWrapper
 import com.example.data.tables.RecipeTable
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 // Klasse RecipeRepository zur Verwaltung von Rezeptdaten.
@@ -58,4 +57,28 @@ class RecipeRepository {
             RecipeTable.select { RecipeTable.rezeptId eq recipeId }.singleOrNull()?.toRecipe()
         }
     }
+
+    // Funktion, um ein einzelnes Rezept anhand seiner ID zu aktualisieren
+    fun updateRecipe(recipeId: Int, newName: String, newDescription: String): Recipe? {
+        return transaction {
+            // Aktualisiert das Rezept mit der gegebenen ID
+            RecipeTable.update({ RecipeTable.rezeptId eq recipeId }) {
+                it[name] = newName
+                it[beschreibung] = newDescription
+            }
+
+            RecipeTable.select { RecipeTable.rezeptId eq recipeId }.singleOrNull()?.toRecipe()
+        }
+    }
+
+    // Funktion, um ein einzelnes Rezept anhand seiner ID zu löschen.
+    fun deleteRecipe(recipeId: Int): Boolean {
+        return transaction {
+            // Verwendet die deleteWhere-Funktion, um das Rezept mit der angegebenen ID zu löschen.
+            val deletedRows = RecipeTable.deleteWhere { RecipeTable.rezeptId eq recipeId}
+            // Gibt true zurück, wenn mindestens eine Zeile gelöscht wurde.
+            deletedRows > 0
+        }
+    }
+
 }
